@@ -115,7 +115,6 @@ object DistrictUi : ConstructionUi {
 			
 			val options = ConstructionUiElements.options
 			val model = options.model as DefaultTableModel
-			model.setNumRows(0)
 			
 			when(buttonList.getSelected()?.name) {
 				"build" -> {

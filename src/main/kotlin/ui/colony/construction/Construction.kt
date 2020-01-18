@@ -242,7 +242,15 @@ fun constructionTypeItemListener(e: ItemEvent, colony: Colony) {
 }
 
 fun slotTypeItemListener(e: ItemEvent, colony: Colony) {
-	activeType.addOptions(e.item, colony)
+	
+	val options = ConstructionUiElements.options
+	val model = options.model as DefaultTableModel
+	model.setNumRows(0)
+	
+	if (e.stateChange == ItemEvent.SELECTED) {
+		activeType.addOptions(e.item, colony)
+	}
+	
 }
 
 fun optionItemListener(e: ListSelectionEvent) {
