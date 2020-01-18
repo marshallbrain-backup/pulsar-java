@@ -220,6 +220,10 @@ fun constructionTypeItemListener(e: ItemEvent, colony: Colony) {
 	if (e.stateChange == ItemEvent.DESELECTED) {
 		ConstructionUiElements.slot.removeAllItems()
 		ConstructionUiElements.options.removeAll()
+		
+		for(i in 1 until ConstructionUiElements.projectCreatePanel.componentCount){
+			ConstructionUiElements.projectCreatePanel.remove(1)
+		}
 	}
 	
 	if (e.stateChange == ItemEvent.SELECTED) {
@@ -267,15 +271,20 @@ interface ConstructionUi {
 	fun deactivate(colony: Colony)
 	fun addOptions(colony: Colony)
 	fun showResources(option: Any)
-
+	fun getCreateMode(): JRadioButton?
+	
 }
 
 object EmptyUi : ConstructionUi {
 	
 	override fun activate(colony: Colony) {
+		ConstructionUiElements.projectDetailPanel.isVisible = false
+		ConstructionUiElements.projectCreatePanel.isVisible = false
 	}
 	
 	override fun deactivate(colony: Colony) {
+		ConstructionUiElements.projectDetailPanel.isVisible = true
+		ConstructionUiElements.projectCreatePanel.isVisible = true
 	}
 
 	override fun addOptions(colony: Colony) {
@@ -283,5 +292,9 @@ object EmptyUi : ConstructionUi {
 
 	override fun showResources(option: Any) {
 	}
-
+	
+	override fun getCreateMode(): JRadioButton? {
+		return null
+	}
+	
 }

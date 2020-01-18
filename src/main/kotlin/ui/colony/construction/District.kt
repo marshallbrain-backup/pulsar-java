@@ -2,9 +2,35 @@ package ui.colony.construction
 
 import com.marshalldbrain.pulsar.colony.Colony
 import com.marshalldbrain.pulsar.colony.districts.DistrictType
+import ui.util.swing.initGridBagConstraints
+import java.awt.GridBagConstraints
+import java.awt.event.ActionEvent
+import javax.swing.ButtonGroup
+import javax.swing.JLabel
+import javax.swing.JRadioButton
 import javax.swing.table.DefaultTableModel
 
 object DistrictUi : ConstructionUi {
+	
+	private val buttonList = listOf(
+		JRadioButton("Build"),
+		JRadioButton("Destroy"),
+		JRadioButton("Tool"),
+		JRadioButton("Detool"),
+		JRadioButton("Upgrade")
+	)
+	private val buttonGroup = ButtonGroup()
+	
+	init {
+		buttonList.forEach { b ->
+			buttonGroup.add(b)
+			b.addActionListener { createRadioButtonListener(it) }
+		}
+	}
+	
+	private fun createRadioButtonListener(it: ActionEvent) {
+		println((it.source as JRadioButton).text)
+	}
 	
 	override fun activate(colony: Colony) {
 		
@@ -27,6 +53,21 @@ object DistrictUi : ConstructionUi {
 		}
 		colony.districts.filter { it.type.isTooled }.forEach { slot.addItem(it) }
 		
+		val panel = ConstructionUiElements.projectCreatePanel
+		val c = GridBagConstraints()
+		initGridBagConstraints(c)
+		
+		buttonList.forEach {
+			c.gridx++
+			panel.add(it, c)
+		}
+		
+		c.gridx++
+		c.weightx = 1.0
+		panel.add(JLabel(), c)
+		
+		buttonList[0].doClick()
+		
 	}
 	
 	override fun deactivate(colony: Colony) {
@@ -44,10 +85,9 @@ object DistrictUi : ConstructionUi {
 	}
 
 	override fun showResources(option: Any) {
+		
 		if (option is DistrictType) {
-			println(option)
-
-
+			
 			val resources = ConstructionUiElements.resources
 			val model = resources.model as DefaultTableModel
 
@@ -65,6 +105,11 @@ object DistrictUi : ConstructionUi {
 			}
 
 		}
+		
+	}
+	
+	override fun getCreateMode(): JRadioButton? {
+		return buttonList.find { it.isSelected }
 	}
 
 }
