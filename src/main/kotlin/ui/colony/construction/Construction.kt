@@ -73,12 +73,8 @@ fun construction(colony: Colony): JPanel {
 	
 }
 
-fun leftPanelInit(panel: JPanel, colony: Colony) {
 fun projectDetailInit() {
 	
-	panel.border = border {
-		compound(padded(5), titled("Construction Options", line(Color.BLACK)))
-	}
 	val panel = ConstructionUiElements.projectDetailPanel
 	
 	val c = GridBagConstraints()
@@ -157,11 +153,21 @@ fun centerPanelInit(panel: JPanel, colony: Colony) {
 	panel.add(create, c)
 	
 }
+
+fun leftPanelInit(panel: JPanel, colony: Colony) {
+	
+	panel.border = border {
+		compound(padded(5), titled("Construction Options", line(Color.BLACK)))
+	}
+	
+	val c = GridBagConstraints()
+	initGridBagConstraints(c)
+
 	val type = ConstructionUiElements.type
 	type.addItemListener { constructionTypeItemListener(it, colony) }
 	
 	c.gridy = 0
-	panel.add(ConstructionUiElements.type, c)
+	panel.add(type, c)
 	
 	val slot = ConstructionUiElements.slot
 	slot.renderer = SlotCellRenderer
@@ -170,18 +176,18 @@ fun centerPanelInit(panel: JPanel, colony: Colony) {
 	
 	c.gridy = 1
 	c.insets = Insets(2, 4, 2, 4)
-	panel.add(ConstructionUiElements.slot, c)
+	panel.add(slot, c)
 	
 	val options = ConstructionUiElements.options
 	options.columnModel.getColumn(0).minWidth = 120
 	options.columnModel.getColumn(1).minWidth = 20
 	options.selectionModel.addListSelectionListener { optionItemListener(it) }
-	options.columnModel.columns.asIterator().forEach { it.cellRenderer = OptionsCellRenderer }
+	options.columnModel.columns.iterator().forEach { it.cellRenderer = OptionsCellRenderer }
 	
 	c.gridy = 2
 	c.weighty = 1.0
 	panel.add(createScrollTable(
-		ConstructionUiElements.options,
+		options,
 		maxVisibleRows = 15,
 		border = border {
 			titled("Constructable Items", line(Color.BLACK))
@@ -189,7 +195,7 @@ fun centerPanelInit(panel: JPanel, colony: Colony) {
 	), c)
 	
 	val resources = ConstructionUiElements.resources
-	resources.columnModel.columns.asIterator().forEach { it.cellRenderer = ResourcesCellRenderer }
+	resources.columnModel.columns.iterator().forEach { it.cellRenderer = ResourcesCellRenderer }
 	
 	c.gridy = 3
 	c.weighty = 0.0
