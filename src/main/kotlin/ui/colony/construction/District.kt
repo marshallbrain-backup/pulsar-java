@@ -1,7 +1,9 @@
 package ui.colony.construction
 
 import com.marshalldbrain.pulsar.colony.Colony
+import com.marshalldbrain.pulsar.colony.districts.District
 import com.marshalldbrain.pulsar.colony.districts.DistrictType
+import ui.util.swing.getSelected
 import ui.util.swing.initGridBagConstraints
 import java.awt.GridBagConstraints
 import java.awt.event.ActionEvent
@@ -24,15 +26,28 @@ object DistrictUi : ConstructionUi {
 	init {
 		buttonList.forEach { b ->
 			buttonGroup.add(b)
-			b.addActionListener { createRadioButtonListener(it) }
+			b.name = b.text.toLowerCase()
 		}
 	}
 	
-	private fun createRadioButtonListener(it: ActionEvent) {
-		println((it.source as JRadioButton).text)
+	private fun radioButtonListener(e: ActionEvent, colony: Colony) {
+		
+		val slot = ConstructionUiElements.slot
+		slot.removeAllItems()
+		
+		when((e.source as JRadioButton).name) {
+			"build" -> {
+				colony.districts.filter { it.type.isTooled }.forEach { slot.addItem(it) }
+			}
+		}
 	}
 	
 	override fun activate(colony: Colony) {
+		
+		buttonList.forEach { b ->
+			b.actionListeners.forEach { b.removeActionListener(it) }
+			b.addActionListener { radioButtonListener(it, colony) }
+		}
 		
 		val slot = ConstructionUiElements.slot
 		
@@ -47,11 +62,10 @@ object DistrictUi : ConstructionUi {
 //		}
 		
 //		slot.addItem("Untooled District (${colony.districts.size - items.size})")
-		val untooledSlots = colony.untooledDistricts
-		if (untooledSlots.isNotEmpty()) {
-			slot.addItem(untooledSlots)
-		}
-		colony.districts.filter { it.type.isTooled }.forEach { slot.addItem(it) }
+//		val untooledSlots = colony.untooledDistricts
+//		if (untooledSlots.isNotEmpty()) {
+//			slot.addItem(untooledSlots)
+//		}
 		
 		val panel = ConstructionUiElements.projectCreatePanel
 		val c = GridBagConstraints()
@@ -75,13 +89,20 @@ object DistrictUi : ConstructionUi {
 		ConstructionUiElements.slot.isVisible = false
 	}
 
-	override fun addOptions(colony: Colony) {
-
-		val options = ConstructionUiElements.options
-		val model = options.model as DefaultTableModel
-
-		colony.districtTypes.forEach { model.addRow(arrayOf(it, it.time)) }
-
+	override fun addOptions(slot: Any, colony: Colony) {
+		if (slot is District) {
+			
+			val options = ConstructionUiElements.options
+			val model = options.model as DefaultTableModel
+			model.setNumRows(0)
+			
+			when(buttonList.getSelected()?.name) {
+				"build" -> {
+					model.addRow(arrayOf(slot.type, slot.type.time))
+				}
+			}
+			
+		}
 	}
 
 	override fun showResources(option: Any) {
@@ -108,8 +129,4 @@ object DistrictUi : ConstructionUi {
 		
 	}
 	
-	override fun getCreateMode(): JRadioButton? {
-		return buttonList.find { it.isSelected }
-	}
-
 }
