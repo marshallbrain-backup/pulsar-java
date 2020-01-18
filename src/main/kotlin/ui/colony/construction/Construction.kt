@@ -4,6 +4,7 @@ import com.marshalldbrain.pulsar.colony.Colony
 import ui.util.swing.border
 import ui.util.swing.createScrollTable
 import ui.util.swing.createTable
+import ui.util.swing.initGridBagConstraints
 import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.GridBagConstraints
@@ -51,6 +52,7 @@ fun construction(colony: Colony): JPanel {
 	val centerPanel = JPanel(GridBagLayout())
 	
 	leftPanelInit(leftPanel, colony)
+	centerPanelInit(centerPanel, colony)
 	
 	constructionPanel.add(leftPanel, BorderLayout.LINE_START)
 	constructionPanel.add(centerPanel, BorderLayout.CENTER)
@@ -66,14 +68,39 @@ fun leftPanelInit(panel: JPanel, colony: Colony) {
 	}
 	
 	val c = GridBagConstraints()
+fun centerPanelInit(panel: JPanel, colony: Colony) {
+
+	val c = GridBagConstraints()
+	initGridBagConstraints(c)
 	
-	c.gridx = 0
+	val allocation = ConstructionUiElements.allocation
+	allocation.columnModel.columns.iterator().forEach {
+		it.headerRenderer = allocation.tableHeader.defaultRenderer
+	}
+	
 	c.gridy = 0
-	c.weightx = 0.0
-	c.weighty = 0.0
-	c.fill = GridBagConstraints.BOTH
-	c.insets = Insets(4, 4, 2, 4)
+	c.weighty = 1.0
+	panel.add(createScrollTable(
+		allocation,
+		border = border {
+			titled("Constructable Items", line(Color.BLACK))
+		}
+	), c)
 	
+	val detail = ConstructionUiElements.projectDetailPanel
+	
+	c.gridy = 1
+	c.weighty = 0.0
+	c.insets = Insets(2, 4, 2, 4)
+	panel.add(detail, c)
+	
+	val create = ConstructionUiElements.projectCreatePanel
+	
+	c.gridy = 2
+	c.insets = Insets(2, 4, 4, 4)
+	panel.add(create, c)
+	
+}
 	val type = ConstructionUiElements.type
 	type.addItemListener { constructionTypeItemListener(it, colony) }
 	
