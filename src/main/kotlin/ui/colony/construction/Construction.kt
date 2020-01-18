@@ -218,9 +218,6 @@ var activeType: ConstructionUi = EmptyUi
 fun constructionTypeItemListener(e: ItemEvent, colony: Colony) {
 	
 	if (e.stateChange == ItemEvent.DESELECTED) {
-		ConstructionUiElements.slot.removeAllItems()
-		ConstructionUiElements.options.removeAll()
-		
 		for(i in 1 until ConstructionUiElements.projectCreatePanel.componentCount){
 			ConstructionUiElements.projectCreatePanel.remove(1)
 		}
@@ -245,7 +242,7 @@ fun constructionTypeItemListener(e: ItemEvent, colony: Colony) {
 }
 
 fun slotTypeItemListener(e: ItemEvent, colony: Colony) {
-	activeType.addOptions(colony)
+	activeType.addOptions(e.item, colony)
 }
 
 fun optionItemListener(e: ListSelectionEvent) {
@@ -269,9 +266,8 @@ interface ConstructionUi {
 	
 	fun activate(colony: Colony)
 	fun deactivate(colony: Colony)
-	fun addOptions(colony: Colony)
+	fun addOptions(slot: Any, colony: Colony)
 	fun showResources(option: Any)
-	fun getCreateMode(): JRadioButton?
 	
 }
 
@@ -287,14 +283,10 @@ object EmptyUi : ConstructionUi {
 		ConstructionUiElements.projectCreatePanel.isVisible = true
 	}
 
-	override fun addOptions(colony: Colony) {
+	override fun addOptions(slot: Any, colony: Colony) {
 	}
 
 	override fun showResources(option: Any) {
-	}
-	
-	override fun getCreateMode(): JRadioButton? {
-		return null
 	}
 	
 }
