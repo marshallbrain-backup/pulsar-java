@@ -13,7 +13,9 @@ import java.awt.Insets
 import java.awt.event.ItemEvent
 import javax.swing.JButton
 import javax.swing.JComboBox
+import javax.swing.JLabel
 import javax.swing.JPanel
+import javax.swing.JRadioButton
 import javax.swing.JTextField
 import javax.swing.event.ListSelectionEvent
 import javax.swing.table.DefaultTableModel
@@ -30,7 +32,7 @@ object ConstructionUiElements {
 		"Resource", "Amount"
 	)
 	
-	val projectAllocation = createTable(
+	val allocation = createTable(
 		*listOf(
 			"Project", "Amount\nRemaining", " % of \n Capacity ", "Production\nRate", "Time\nRemaining", "Estimated Completion\nDate"
 		).map {
@@ -38,9 +40,15 @@ object ConstructionUiElements {
 		}.toTypedArray()
 	)
 	
+	val projectAmount = JTextField("1")
+	val projectPercent = JTextField("100")
+	val projectDetailPanel = JPanel(GridBagLayout())
+	
 	val projectCreateButton = JButton("Create")
-	val projectCreateAmount = JTextField("1")
-	val projectCreatePercent = JTextField("100")
+	val projectCreatePanel = JPanel(GridBagLayout())
+	
+	val projectModifyButton = JButton("Modify")
+	val projectModifyPanel = JPanel(GridBagLayout())
 	
 }
 
@@ -54,6 +62,10 @@ fun construction(colony: Colony): JPanel {
 	leftPanelInit(leftPanel, colony)
 	centerPanelInit(centerPanel, colony)
 	
+	projectDetailInit()
+	projectCreateInit()
+	projectModifyInit()
+	
 	constructionPanel.add(leftPanel, BorderLayout.LINE_START)
 	constructionPanel.add(centerPanel, BorderLayout.CENTER)
 	
@@ -62,12 +74,56 @@ fun construction(colony: Colony): JPanel {
 }
 
 fun leftPanelInit(panel: JPanel, colony: Colony) {
+fun projectDetailInit() {
 	
 	panel.border = border {
 		compound(padded(5), titled("Construction Options", line(Color.BLACK)))
 	}
+	val panel = ConstructionUiElements.projectDetailPanel
 	
 	val c = GridBagConstraints()
+	initGridBagConstraints(c)
+	
+	val amount = JLabel("Amount of Items")
+	c.insets = Insets(4, 4, 4, 4)
+	c.anchor = GridBagConstraints.LINE_START
+	panel.add(amount, c)
+	
+	val amountField = ConstructionUiElements.projectAmount
+	amountField.columns = 5
+	c.gridx = 1
+	panel.add(amountField, c)
+	
+	val percent = JLabel("Percentage of Capacity")
+	c.gridx = 2
+	panel.add(percent, c)
+	
+	val percentField = ConstructionUiElements.projectPercent
+	percentField.columns = 5
+	c.gridx = 3
+	panel.add(percentField, c)
+	
+	c.gridx = 4
+	c.weightx = 1.0
+	panel.add(JLabel(), c)
+
+}
+
+fun projectCreateInit() {
+	
+	val panel = ConstructionUiElements.projectCreatePanel
+	val c = GridBagConstraints()
+	initGridBagConstraints(c)
+	
+	val create = ConstructionUiElements.projectCreateButton
+	panel.add(create, c)
+	
+}
+
+fun projectModifyInit() {
+
+}
+
 fun centerPanelInit(panel: JPanel, colony: Colony) {
 
 	val c = GridBagConstraints()
