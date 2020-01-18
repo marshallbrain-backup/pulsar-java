@@ -17,6 +17,7 @@ object DistrictUi : ConstructionUi {
 	private val buttonList = listOf(
 		JRadioButton("Build"),
 		JRadioButton("Destroy"),
+		JRadioButton("Replace"),
 		JRadioButton("Tool"),
 		JRadioButton("Detool"),
 		JRadioButton("Upgrade")
@@ -24,10 +25,14 @@ object DistrictUi : ConstructionUi {
 	private val buttonGroup = ButtonGroup()
 	
 	init {
+		
 		buttonList.forEach { b ->
 			buttonGroup.add(b)
 			b.name = b.text.toLowerCase()
 		}
+		
+		buttonList[5].isEnabled = false
+		
 	}
 	
 	private fun radioButtonListener(e: ActionEvent, colony: Colony) {
@@ -37,9 +42,25 @@ object DistrictUi : ConstructionUi {
 		
 		when((e.source as JRadioButton).name) {
 			"build" -> {
-				colony.districts.filter { it.type.isTooled }.forEach { slot.addItem(it) }
+				colony.districts.filter { it.type.isTooled }
 			}
-		}
+			"destroy" -> {
+				colony.districts.filter { it.type.isTooled && it.amount > 0 }
+			}
+			"replace" -> {
+				colony.districts.filter { it.type.isTooled && it.amount > 0 }
+			}
+			"tool" -> {
+				colony.districts.distinctBy { it.type }
+			}
+			"detool" -> {
+				colony.districts.filter { it.type.isTooled }
+			}
+			"upgrade" -> {
+				emptyList()
+			}
+			else -> emptyList()
+		}.forEach { slot.addItem(it) }
 	}
 	
 	override fun activate(colony: Colony) {
@@ -99,6 +120,24 @@ object DistrictUi : ConstructionUi {
 			when(buttonList.getSelected()?.name) {
 				"build" -> {
 					model.addRow(arrayOf(slot.type, slot.type.time))
+				}
+				"destroy" -> {
+					model.addRow(arrayOf(slot.type, slot.type.time))
+				}
+				"replace" -> {
+					colony.districts.filter { it.type.isTooled }.forEach {
+						model.addRow(arrayOf(it.type, it.type.time))
+					}
+				}
+				"tool" -> {
+					colony.districtTypes.forEach {
+						model.addRow(arrayOf(it, it.time))
+					}
+				}
+				"detool" -> {
+					model.addRow(arrayOf(DistrictType.emptyDistrict, DistrictType.emptyDistrict.time))
+				}
+				"upgrade" -> {
 				}
 			}
 			
