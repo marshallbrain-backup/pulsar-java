@@ -2,7 +2,6 @@ plugins {
     kotlin("jvm") version "1.3.61"
 }
 
-group = "com.marshalldbrain"
 version = "0.1"
 
 repositories {
@@ -11,7 +10,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("pulsar:src.jvm")
+    implementation("com.marshalldbrain.pulsar:src.jvm")
 }
 
 tasks {

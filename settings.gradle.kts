@@ -1,3 +1,3 @@
 rootProject.name = "pulsar-java"
 
-includeBuild("../Pulsar")
+includeBuild("../pulsar")
