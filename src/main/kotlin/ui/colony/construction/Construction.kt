@@ -34,7 +34,7 @@ object ConstructionUiElements {
 	
 	val allocation = createTable(
 		*listOf(
-			"Project", "Amount\nRemaining", " % of \n Capacity ", "Production\nRate", "Time\nRemaining", "Estimated Completion\nDate"
+			"Project", "Production\nRemaining", "Amount\nRemaining", " % of \n Capacity ", "Production\nRate", "Estimated Completion\nDate"
 		).map {
 			"<html><center>" + it.replace("\n", "<br/>") + "</center></html>"
 		}.toTypedArray()
@@ -128,7 +128,9 @@ fun centerPanelInit(panel: JPanel, colony: Colony) {
 	val allocation = ConstructionUiElements.allocation
 	allocation.columnModel.columns.iterator().forEach {
 		it.headerRenderer = allocation.tableHeader.defaultRenderer
+		it.cellRenderer = AllocationCellRenderer
 	}
+	allocation.columnModel.getColumn(0).preferredWidth = 150
 	
 	c.gridy = 0
 	c.weighty = 1.0

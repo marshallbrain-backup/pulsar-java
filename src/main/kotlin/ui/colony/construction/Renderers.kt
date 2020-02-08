@@ -94,3 +94,24 @@ object ResourcesCellRenderer: DefaultTableCellRenderer() {
 	}
 
 }
+
+object AllocationCellRenderer: DefaultTableCellRenderer() {
+	
+	override fun getTableCellRendererComponent(
+		table: JTable?,
+		value: Any?,
+		isSelected: Boolean,
+		hasFocus: Boolean,
+		row: Int,
+		column: Int
+	): Component {
+		
+		return if (value is Function) {
+			super.getTableCellRendererComponent(table, value.invoke(), isSelected, hasFocus, row, column)
+		} else {
+			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column)
+		}
+		
+	}
+	
+}
