@@ -11,6 +11,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("com.marshalldbrain.pulsar:src.jvm")
+    implementation("com.marshalldbrain.ion:src.jvm")
 }
 
 tasks {
