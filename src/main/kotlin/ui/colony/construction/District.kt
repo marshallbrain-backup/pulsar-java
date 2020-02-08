@@ -167,4 +167,19 @@ object DistrictUi : ConstructionUi {
 		
 	}
 	
+	override fun createTask(amount: Int) {
+		
+		val index = ConstructionUiElements.options.selectedRow
+		val type = ConstructionUiElements.options.getValueAt(index, 0)
+		val district = ConstructionUiElements.slot.selectedItem
+		
+		if (district is District && type is DistrictType) {
+			val task = ConstructionTask(ConstructionTask.Type.BUILD, district, amount)
+			colony.constructionManager.addToQueue(task)
+		}
+		
+		updateAllocation()
+		
+	}
+	
 }

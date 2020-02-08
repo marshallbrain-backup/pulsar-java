@@ -276,6 +276,7 @@ interface ConstructionUi {
 	fun deactivate(colony: Colony)
 	fun addOptions(slot: Any, colony: Colony)
 	fun showResources(option: Any)
+	fun createTask(amount: Int)
 	
 }
 
@@ -295,6 +296,9 @@ object EmptyUi : ConstructionUi {
 	}
 
 	override fun showResources(option: Any) {
+	}
+	
+	override fun createTask(amount: Int) {
 	}
 	
 }
