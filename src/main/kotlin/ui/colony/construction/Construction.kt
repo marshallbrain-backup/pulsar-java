@@ -270,6 +270,21 @@ fun optionItemListener(e: ListSelectionEvent) {
 	}
 }
 
+fun updateAllocation() {
+	
+	val allocation = ConstructionUiElements.allocation
+	
+	val model = allocation.model as DefaultTableModel
+	model.rowCount = 0
+	
+	colony.constructionManager.constructionQueue.forEach {
+		model.addRow(arrayOf(it.projectName, Function(it::timeRemaining), Function(it::amountRemaining), 100, 1, "None"))
+	}
+	
+}
+
+internal class Function (function: () -> Any?) : () -> Any? by function
+
 interface ConstructionUi {
 	
 	fun activate(colony: Colony)
