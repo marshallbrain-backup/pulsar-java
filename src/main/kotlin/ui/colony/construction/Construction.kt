@@ -112,6 +112,7 @@ fun projectCreateInit() {
 	initGridBagConstraints(c)
 	
 	val create = ConstructionUiElements.projectCreateButton
+	create.addActionListener { activeType.createTask(1) }
 	panel.add(create, c)
 	
 }
@@ -244,6 +245,9 @@ fun constructionTypeItemListener(e: ItemEvent, colony: Colony) {
 }
 
 fun slotTypeItemListener(e: ItemEvent, colony: Colony) {
+fun slotTypeItemListener(e: ItemEvent) {
+	
+	ConstructionUiElements.projectCreateButton.isEnabled = false
 	
 	val options = ConstructionUiElements.options
 	val model = options.model as DefaultTableModel
@@ -264,6 +268,9 @@ fun optionItemListener(e: ListSelectionEvent) {
 	model.rowCount = 0
 
 	if (options.selectedRow >= 0 && !e.valueIsAdjusting) {
+	if (options.selectedRow >= 0) {
+		
+		ConstructionUiElements.projectCreateButton.isEnabled = true
 
 		val target = options.getValueAt(options.selectedRow, 0)
 
