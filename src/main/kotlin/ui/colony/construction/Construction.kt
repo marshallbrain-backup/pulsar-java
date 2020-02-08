@@ -1,6 +1,7 @@
 package ui.colony.construction
 
 import com.marshalldbrain.pulsar.colony.Colony
+import ui.colony.colony
 import ui.util.swing.border
 import ui.util.swing.createScrollTable
 import ui.util.swing.createTable
@@ -52,15 +53,15 @@ object ConstructionUiElements {
 	
 }
 
-fun construction(colony: Colony): JPanel {
+fun construction(): JPanel {
 	
 	val constructionPanel = JPanel(BorderLayout())
 	
 	val leftPanel = JPanel(GridBagLayout())
 	val centerPanel = JPanel(GridBagLayout())
 	
-	leftPanelInit(leftPanel, colony)
-	centerPanelInit(centerPanel, colony)
+	leftPanelInit(leftPanel)
+	centerPanelInit(centerPanel)
 	
 	projectDetailInit()
 	projectCreateInit()
@@ -121,7 +122,7 @@ fun projectModifyInit() {
 
 }
 
-fun centerPanelInit(panel: JPanel, colony: Colony) {
+fun centerPanelInit(panel: JPanel) {
 
 	val c = GridBagConstraints()
 	initGridBagConstraints(c)
@@ -157,7 +158,7 @@ fun centerPanelInit(panel: JPanel, colony: Colony) {
 	
 }
 
-fun leftPanelInit(panel: JPanel, colony: Colony) {
+fun leftPanelInit(panel: JPanel) {
 	
 	panel.border = border {
 		compound(padded(5), titled("Construction Options", line(Color.BLACK)))
@@ -167,14 +168,14 @@ fun leftPanelInit(panel: JPanel, colony: Colony) {
 	initGridBagConstraints(c)
 
 	val type = ConstructionUiElements.type
-	type.addItemListener { constructionTypeItemListener(it, colony) }
+	type.addItemListener { constructionTypeItemListener(it) }
 	
 	c.gridy = 0
 	panel.add(type, c)
 	
 	val slot = ConstructionUiElements.slot
 	slot.renderer = SlotCellRenderer
-	slot.addItemListener { slotTypeItemListener(it, colony) }
+	slot.addItemListener { slotTypeItemListener(it) }
 	slot.isVisible = false
 	
 	c.gridy = 1
@@ -182,8 +183,7 @@ fun leftPanelInit(panel: JPanel, colony: Colony) {
 	panel.add(slot, c)
 	
 	val options = ConstructionUiElements.options
-	options.columnModel.getColumn(0).minWidth = 120
-	options.columnModel.getColumn(1).minWidth = 20
+	options.columnModel.getColumn(0).preferredWidth = 150
 	options.selectionModel.addListSelectionListener { optionItemListener(it) }
 	options.columnModel.columns.iterator().forEach { it.cellRenderer = OptionsCellRenderer }
 	
@@ -218,7 +218,7 @@ fun leftPanelInit(panel: JPanel, colony: Colony) {
 
 var activeType: ConstructionUi = EmptyUi
 
-fun constructionTypeItemListener(e: ItemEvent, colony: Colony) {
+fun constructionTypeItemListener(e: ItemEvent) {
 	
 	if (e.stateChange == ItemEvent.DESELECTED) {
 		for(i in 1 until ConstructionUiElements.projectCreatePanel.componentCount){
@@ -228,7 +228,7 @@ fun constructionTypeItemListener(e: ItemEvent, colony: Colony) {
 	
 	if (e.stateChange == ItemEvent.SELECTED) {
 		
-		activeType.deactivate(colony)
+		activeType.deactivate()
 		
 		activeType = when (e.item) {
 			"Districts" -> DistrictUi
@@ -238,13 +238,12 @@ fun constructionTypeItemListener(e: ItemEvent, colony: Colony) {
 			}
 		}
 		
-		activeType.activate(colony)
+		activeType.activate()
 		
 	}
 
 }
 
-fun slotTypeItemListener(e: ItemEvent, colony: Colony) {
 fun slotTypeItemListener(e: ItemEvent) {
 	
 	ConstructionUiElements.projectCreateButton.isEnabled = false
@@ -254,20 +253,19 @@ fun slotTypeItemListener(e: ItemEvent) {
 	model.setNumRows(0)
 	
 	if (e.stateChange == ItemEvent.SELECTED) {
-		activeType.addOptions(e.item, colony)
+		activeType.addOptions(e.item)
 	}
 	
 }
 
 fun optionItemListener(e: ListSelectionEvent) {
-
+	
 	val options = ConstructionUiElements.options
 	val resources = ConstructionUiElements.resources
 
 	val model = resources.model as DefaultTableModel
 	model.rowCount = 0
 
-	if (options.selectedRow >= 0 && !e.valueIsAdjusting) {
 	if (options.selectedRow >= 0) {
 		
 		ConstructionUiElements.projectCreateButton.isEnabled = true
@@ -296,9 +294,9 @@ internal class Function (function: () -> Any?) : () -> Any? by function
 
 interface ConstructionUi {
 	
-	fun activate(colony: Colony)
-	fun deactivate(colony: Colony)
-	fun addOptions(slot: Any, colony: Colony)
+	fun activate()
+	fun deactivate()
+	fun addOptions(slot: Any)
 	fun showResources(option: Any)
 	fun createTask(amount: Int)
 	
@@ -306,17 +304,17 @@ interface ConstructionUi {
 
 object EmptyUi : ConstructionUi {
 	
-	override fun activate(colony: Colony) {
+	override fun activate() {
 		ConstructionUiElements.projectDetailPanel.isVisible = false
 		ConstructionUiElements.projectCreatePanel.isVisible = false
 	}
 	
-	override fun deactivate(colony: Colony) {
+	override fun deactivate() {
 		ConstructionUiElements.projectDetailPanel.isVisible = true
 		ConstructionUiElements.projectCreatePanel.isVisible = true
 	}
 
-	override fun addOptions(slot: Any, colony: Colony) {
+	override fun addOptions(slot: Any) {
 	}
 
 	override fun showResources(option: Any) {

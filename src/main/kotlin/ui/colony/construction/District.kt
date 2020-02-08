@@ -1,8 +1,10 @@
 package ui.colony.construction
 
 import com.marshalldbrain.pulsar.colony.Colony
+import com.marshalldbrain.pulsar.colony.construction.ConstructionTask
 import com.marshalldbrain.pulsar.colony.districts.District
 import com.marshalldbrain.pulsar.colony.districts.DistrictType
+import ui.colony.colony
 import ui.util.swing.getSelected
 import ui.util.swing.initGridBagConstraints
 import java.awt.GridBagConstraints
@@ -23,6 +25,7 @@ object DistrictUi : ConstructionUi {
 		JRadioButton("Upgrade")
 	)
 	private val buttonGroup = ButtonGroup()
+	private var buttonSelected = ""
 	
 	init {
 		
@@ -40,7 +43,8 @@ object DistrictUi : ConstructionUi {
 		val slot = ConstructionUiElements.slot
 		slot.removeAllItems()
 		
-		when((e.source as JRadioButton).name) {
+		buttonSelected = (e.source as JRadioButton).name
+		when(buttonSelected) {
 			"build" -> {
 				colony.districts.filter { it.type.isTooled }
 			}
@@ -61,9 +65,10 @@ object DistrictUi : ConstructionUi {
 			}
 			else -> emptyList()
 		}.forEach { slot.addItem(it) }
+		
 	}
 	
-	override fun activate(colony: Colony) {
+	override fun activate() {
 		
 		buttonList.forEach { b ->
 			b.actionListeners.forEach { b.removeActionListener(it) }
@@ -105,18 +110,18 @@ object DistrictUi : ConstructionUi {
 		
 	}
 	
-	override fun deactivate(colony: Colony) {
+	override fun deactivate() {
 		println("District Ui deactivated")
 		ConstructionUiElements.slot.isVisible = false
 	}
 
-	override fun addOptions(slot: Any, colony: Colony) {
+	override fun addOptions(slot: Any) {
 		if (slot is District) {
 			
 			val options = ConstructionUiElements.options
 			val model = options.model as DefaultTableModel
 			
-			when(buttonList.getSelected()?.name) {
+			when(buttonSelected) {
 				"build" -> {
 					model.addRow(arrayOf(slot.type, slot.type.time))
 				}

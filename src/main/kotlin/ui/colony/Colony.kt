@@ -12,12 +12,15 @@ import java.awt.Panel
 import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.JTabbedPane
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
+import kotlin.time.days
+
+val colony = Colony(initDistrictTypes())
 
 fun main() {
 	
 //	title.titleJustification = TitledBorder.CENTER
-	
-	val colony = Colony(initDistrictTypes())
 	
 	val frame = JFrame()
 	val panel = Panel(BorderLayout())
@@ -35,7 +38,7 @@ fun main() {
 	
 	val tabs = JTabbedPane()
 	tabs.addTab("Overview", JPanel())
-	tabs.addTab("Construction", construction(colony))
+	tabs.addTab("Construction", construction())
 	tabs.addTab("Manage Developments", JPanel())
 	tabs.addTab("Manage Population", JPanel())
 	tabs.selectedIndex = 1
