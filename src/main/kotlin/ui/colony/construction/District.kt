@@ -179,7 +179,7 @@ object DistrictUi : ConstructionUi {
 		val district = ConstructionUiElements.slot.selectedItem
 		
 		if (district is District && type is DistrictType) {
-			val task = ConstructionTask(ConstructionTask.Type.BUILD, district, amount)
+			val task = district.build()
 			colony.constructionManager.addToQueue(task)
 		}
 		
