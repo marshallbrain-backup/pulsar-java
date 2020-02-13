@@ -34,11 +34,8 @@ object ConstructionUiElements {
 	)
 	
 	val allocation = createTable(
-		*listOf(
-			"Project", "Production\nRemaining", "Amount\nRemaining", " % of \n Capacity ", "Production\nRate", "Estimated Completion\nDate"
-		).map {
-			"<html><center>" + it.replace("\n", "<br/>") + "</center></html>"
-		}.toTypedArray()
+		"Project", "Production\nRemaining", "Amount\nRemaining", " % of \n Capacity ", "Production\nRate",
+		"Estimated Completion\nDate"
 	)
 	
 	val projectAmount = JTextField("1")

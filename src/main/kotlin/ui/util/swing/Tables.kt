@@ -51,10 +51,14 @@ fun createScrollTable(
 
 fun createTable(
 	vararg columnNames: String,
-	data: MutableList<*> = emptyList<String>().toMutableList()
+	data: List<*> = emptyList<String>().toMutableList()
 ) : JTable {
 	
-	val formattedData = getFormattedData(data, *columnNames)
+	val columnNamesList = columnNames.map {
+		"<html><center>" + it.replace("\n", "<br/>") + "</center></html>"
+	}.toTypedArray()
+	
+	val formattedData = getFormattedData(data, *columnNamesList)
 	
 	val table = object : JTable(DefaultTableModel(formattedData, columnNames)) {
 		override fun isCellEditable(row: Int, column: Int): Boolean = false
@@ -70,7 +74,7 @@ fun createTable(
 }
 
 private fun getFormattedData(
-	data: MutableList<*>,
+	data: List<*>,
 	vararg columnNames: String
 ) : Array<Array<*>> {
 	
