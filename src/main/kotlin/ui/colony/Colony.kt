@@ -3,26 +3,37 @@ package ui.colony
 import com.marshalldbrain.pulsar.colony.Colony
 import com.marshalldbrain.pulsar.colony.districts.DistrictType
 import com.marshalldbrain.pulsar.resources.Resource
+import com.marshalldbrain.pulsar.resources.ResourceMaster
 import com.marshalldbrain.pulsar.resources.ResourceType
 import ui.colony.construction.construction
 import ui.colony.construction.updateAllocation
+import ui.util.swing.createScrollTable
+import ui.util.swing.createTable
 import java.awt.BorderLayout
 import java.awt.Button
+import java.awt.GridLayout
 import java.awt.Panel
+import java.awt.Point
 import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.JTabbedPane
-import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
-import kotlin.time.days
+import javax.swing.JTable
+import javax.swing.ScrollPaneConstants
+import javax.swing.table.DefaultTableModel
 
-val colony = Colony(initDistrictTypes())
+
+val teller = ResourceMaster()
+val colony = Colony(initDistrictTypes(), teller)
+val frame = JFrame()
+val bankFrame = JFrame()
+
+//TODO make updating components easier
+//TODO group functions into objects
 
 fun main() {
 	
 //	title.titleJustification = TitledBorder.CENTER
 	
-	val frame = JFrame()
 	val panel = Panel(BorderLayout())
 	frame.add(panel)
 	
@@ -48,13 +59,62 @@ fun main() {
 	frame.setLocationRelativeTo(null);
 	frame.isVisible = true
 	frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+	
+	createResourceFrame()
 
 }
 
+var bank = JTable()
+
+private fun createResourceFrame() {
+	
+	bank = createTable(
+		"Name", "Total Amount", "Income",
+		data = listOf("test", 5, 5)
+	)
+	
+	val scrollPane = createScrollTable(bank, alwaysMaxSize = true)
+	scrollPane.verticalScrollBarPolicy = ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER
+	bankFrame.add(
+		scrollPane
+	)
+	
+	bankFrame.pack()
+	bankFrame.location = Point(50, 200)
+	bankFrame.isVisible = true
+	bankFrame.defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE
+	
+}
+
+var timePassed = 0
+var month = 0
+
 fun passTime(time: Int) {
 	
+	timePassed += time
+	
 	colony.constructionManager.tick(time)
+	
+	if (timePassed / 30 > month) {
+		month = timePassed / 30
+		teller.collectResources()
+	}
+	
 	updateAllocation()
+	updateBank()
+	
+}
+
+fun updateBank() {
+	
+	val model = bank.model as DefaultTableModel
+	model.rowCount = 0
+	
+	teller.bank.forEach { (type, resourcePair) ->
+		model.addRow(arrayOf(type.id, resourcePair.first.amount, resourcePair.second.amount))
+	}
+	
+	bankFrame.pack()
 	
 }
 
@@ -68,25 +128,25 @@ private fun initDistrictTypes() : Set<DistrictType> {
 		id = "d1",
 		time = 100,
 		starting = true,
-		cost = listOf(Resource(minerals, 100)),
-		production = listOf(Resource(energy, 4)),
-		upkeep = listOf(Resource(energy, 1))
+		cost = setOf(Resource(minerals, 100)),
+		production = setOf(Resource(energy, 4)),
+		upkeep = setOf(Resource(energy, 1))
 	)
 	
 	val district2 = DistrictType(
 		id = "d2",
 		time = 100,
-		cost = listOf(Resource(minerals, 100)),
-		production = listOf(Resource(minerals, 4)),
-		upkeep = listOf(Resource(energy, 1))
+		cost = setOf(Resource(minerals, 100)),
+		production = setOf(Resource(minerals, 4)),
+		upkeep = setOf(Resource(energy, 1))
 	)
 	
 	val district3 = DistrictType(
 		id = "d3",
 		time = 100,
-		cost = listOf(Resource(minerals, 100)),
-		production = listOf(Resource(food, 4)),
-		upkeep = listOf(Resource(energy, 1))
+		cost = setOf(Resource(minerals, 100)),
+		production = setOf(Resource(food, 4)),
+		upkeep = setOf(Resource(energy, 1))
 	)
 	
 	val list = listOf(
