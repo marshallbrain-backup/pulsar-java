@@ -11,20 +11,31 @@ import javax.swing.table.DefaultTableModel
 fun createScrollTable(
 	table: JTable,
 	maxVisibleRows: Int = table.rowCount,
-	border: Border = BorderFactory.createEmptyBorder()
+	border: Border = BorderFactory.createEmptyBorder(),
+	alwaysMaxSize: Boolean = false
 ) : JScrollPane {
 	
 	val scrollPane = object : ContinuesScrollPane(table) {
 		
 		override fun getPreferredSize(): Dimension {
-			val insets = border.getBorderInsets(this)
-			return Dimension(0, (table.rowHeight)*maxVisibleRows) +
-					columnHeader.preferredSize +
-					Dimension(insets.left + insets.right, insets.top + insets.bottom)
+			return when {
+				
+				alwaysMaxSize -> {
+					val insets = border.getBorderInsets(this)
+					Dimension(0, (table.rowHeight)*table.rowCount) +
+							columnHeader.preferredSize +
+							Dimension(insets.left + insets.right, insets.top + insets.bottom)
+				}
+				
+				else -> {
+					val insets = border.getBorderInsets(this)
+					Dimension(0, (table.rowHeight)*maxVisibleRows) +
+							columnHeader.preferredSize +
+							Dimension(insets.left + insets.right, insets.top + insets.bottom)
+				}
+				
+			}
 		}
-		
-		override fun getMinimumSize(): Dimension = preferredSize
-		override fun getMaximumSize(): Dimension = preferredSize
 		
 		init {
 			addMouseWheelListener(ContinuesMouseWheelListener())
