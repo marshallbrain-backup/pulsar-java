@@ -1,7 +1,6 @@
 package ui.colony.construction
 
-import com.marshalldbrain.pulsar.colony.districts.District
-import com.marshalldbrain.pulsar.colony.districts.DistrictType
+import com.marshalldbrain.pulsar.colony.production.DistrictType
 import java.awt.Color
 import java.awt.Component
 import javax.swing.DefaultListCellRenderer
@@ -50,13 +49,14 @@ object SlotCellRenderer: DefaultListCellRenderer() {
 		
 		return when(value) {
 			
-			is District -> {
-				val v = "${value.type.id} (${value.amount})"
-				super.getListCellRendererComponent(list, v, index, isSelected, cellHasFocus)
-			}
-
-			is List<*> -> {
-				val v = "Untooled District (${value.size} remaining)"
+			is Pair<*, *> -> {
+				
+				val key = value.first
+				
+				val v = when(key) {
+					is DistrictType -> "${key.id} (${value.second})"
+					else -> value
+				}
 				super.getListCellRendererComponent(list, v, index, isSelected, cellHasFocus)
 			}
 			

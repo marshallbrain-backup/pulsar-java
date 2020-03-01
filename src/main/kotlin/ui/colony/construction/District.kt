@@ -1,11 +1,10 @@
 package ui.colony.construction
 
 import com.marshalldbrain.pulsar.colony.Colony
-import com.marshalldbrain.pulsar.colony.construction.ConstructionTask
-import com.marshalldbrain.pulsar.colony.districts.District
-import com.marshalldbrain.pulsar.colony.districts.DistrictType
+import com.marshalldbrain.pulsar.colony.construction.ConstructionType
+import com.marshalldbrain.pulsar.colony.production.DistrictType
 import ui.colony.colony
-import ui.util.swing.getSelected
+import ui.colony.updateBank
 import ui.util.swing.initGridBagConstraints
 import java.awt.GridBagConstraints
 import java.awt.event.ActionEvent
@@ -45,22 +44,23 @@ object DistrictUi : ConstructionUi {
 		
 		buttonSelected = (e.source as JRadioButton).name
 		when(buttonSelected) {
-			"build" -> {
-				colony.districts.filter { it.type.isTooled }
+			"build" -> { // Districts that have a type
+				colony.districtInfo.districts.toList()
 			}
-			"destroy" -> {
-				colony.districts.filter { it.type.isTooled && it.amount > 0 }
+			"destroy" -> { // Districts that have a type and an amount above 0
+				colony.districtInfo.districts.filter { (_, v) -> v != 0 }.toList()
 			}
-			"replace" -> {
-				colony.districts.filter { it.type.isTooled && it.amount > 0 }
+			"replace" -> { // Same as destroy
+				colony.districtInfo.districts.filter { (_, v) -> v != 0 }.toList()
 			}
-			"tool" -> {
-				colony.districts.distinctBy { it.type }
+			"tool" -> { // All types that do not have district
+				colony.districtInfo.districts.toList() +
+						listOf(Pair(DistrictType.emptyDistrict, colony.districtInfo.remaining))
 			}
-			"detool" -> {
-				colony.districts.filter { it.type.isTooled }
+			"detool" -> { // Districts that have a type
+				colony.districtInfo.districts.toList()
 			}
-			"upgrade" -> {
+			"upgrade" -> { // Empty
 				emptyList()
 			}
 			else -> emptyList()
@@ -116,36 +116,35 @@ object DistrictUi : ConstructionUi {
 	}
 
 	override fun addOptions(slot: Any) {
-		if (slot is District) {
+		val type = (slot as Pair<*, *>).first as DistrictType
 			
-			val options = ConstructionUiElements.options
-			val model = options.model as DefaultTableModel
-			
-			when(buttonSelected) {
-				"build" -> {
-					model.addRow(arrayOf(slot.type, slot.type.time))
-				}
-				"destroy" -> {
-					model.addRow(arrayOf(slot.type, slot.type.time))
-				}
-				"replace" -> {
-					colony.districts.filter { it.type.isTooled }.forEach {
-						model.addRow(arrayOf(it.type, it.type.time))
-					}
-				}
-				"tool" -> {
-					colony.districtTypes.forEach {
-						model.addRow(arrayOf(it, it.time))
-					}
-				}
-				"detool" -> {
-					model.addRow(arrayOf(DistrictType.emptyDistrict, DistrictType.emptyDistrict.time))
-				}
-				"upgrade" -> {
+		val options = ConstructionUiElements.options
+		val model = options.model as DefaultTableModel
+		
+		when(buttonSelected) {
+			"build" -> {
+				model.addRow(arrayOf(type, type.time))
+			}
+			"destroy" -> {
+				model.addRow(arrayOf(type, type.time))
+			}
+			"replace" -> {
+				colony.districtInfo.districts.forEach { (k, _) ->
+					model.addRow(arrayOf(k, k.time))
 				}
 			}
-			
+			"tool" -> {
+				colony.districtInfo.remainingTypes.forEach { k ->
+					model.addRow(arrayOf(k, k.time))
+				}
+			}
+			"detool" -> {
+				model.addRow(arrayOf(DistrictType.emptyDistrict, DistrictType.emptyDistrict.time))
+			}
+			"upgrade" -> {
+			}
 		}
+		
 	}
 
 	override fun showResources(option: Any) {
@@ -156,16 +155,16 @@ object DistrictUi : ConstructionUi {
 			val model = resources.model as DefaultTableModel
 
 			model.addRow(arrayOf("\$Cost", "\$"))
-			option.cost.forEach {
-				model.addRow(arrayOf(it.type.id, it.amount))
+			option.cost.forEach { (k, v) ->
+				model.addRow(arrayOf(k.id, v))
 			}
 			model.addRow(arrayOf("\$Production", "\$"))
-			option.production.forEach {
-				model.addRow(arrayOf(it.type.id, it.amount))
+			option.production.forEach { (k, v) ->
+				model.addRow(arrayOf(k.id, v))
 			}
 			model.addRow(arrayOf("\$Upkeep", "\$"))
-			option.upkeep.forEach {
-				model.addRow(arrayOf(it.type.id, it.amount))
+			option.upkeep.forEach { (k, v) ->
+				model.addRow(arrayOf(k.id, v))
 			}
 
 		}
@@ -178,12 +177,13 @@ object DistrictUi : ConstructionUi {
 		val type = ConstructionUiElements.options.getValueAt(index, 0)
 		val district = ConstructionUiElements.slot.selectedItem
 		
-		if (district is District && type is DistrictType) {
-			val task = district.build()
-			colony.constructionManager.addToQueue(task)
+		if (district is Pair<*, *> && type is DistrictType) {
+			val task = colony.districtInfo.createConstructionTask(type, ConstructionType.BUILD, 1)
+			colony.addToConstructionQueue(task)
 		}
 		
 		updateAllocation()
+		updateBank()
 		
 	}
 	

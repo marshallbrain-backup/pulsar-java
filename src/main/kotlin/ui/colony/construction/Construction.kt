@@ -281,8 +281,12 @@ fun updateAllocation() {
 	val model = allocation.model as DefaultTableModel
 	model.rowCount = 0
 	
-	colony.constructionManager.constructionQueue.forEach {
-		model.addRow(arrayOf(it.projectName, Function(it::timeRemaining), Function(it::amountRemaining), 100, 1, "None"))
+	colony.constructionInfo.active.forEach {
+		model.addRow(arrayOf(it.projectName, it.timeRemaining, it.amountRemaining, 100, 1, "None"))
+	}
+	
+	colony.constructionInfo.queue.forEach {
+		model.addRow(arrayOf(it.projectName, it.timeRemaining, it.amountRemaining, 100, 1, "None"))
 	}
 	
 }

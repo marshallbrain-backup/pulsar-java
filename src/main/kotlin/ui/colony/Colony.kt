@@ -1,9 +1,8 @@
 package ui.colony
 
 import com.marshalldbrain.pulsar.colony.Colony
-import com.marshalldbrain.pulsar.colony.districts.DistrictType
-import com.marshalldbrain.pulsar.resources.Resource
-import com.marshalldbrain.pulsar.resources.ResourceMaster
+import com.marshalldbrain.pulsar.colony.production.DistrictType
+import com.marshalldbrain.pulsar.resources.ResourceBucket
 import com.marshalldbrain.pulsar.resources.ResourceType
 import ui.colony.construction.construction
 import ui.colony.construction.updateAllocation
@@ -11,7 +10,6 @@ import ui.util.swing.createScrollTable
 import ui.util.swing.createTable
 import java.awt.BorderLayout
 import java.awt.Button
-import java.awt.GridLayout
 import java.awt.Panel
 import java.awt.Point
 import javax.swing.JFrame
@@ -22,8 +20,8 @@ import javax.swing.ScrollPaneConstants
 import javax.swing.table.DefaultTableModel
 
 
-val teller = ResourceMaster()
-val colony = Colony(initDistrictTypes(), teller)
+val bucket = ResourceBucket()
+val colony = Colony(initDistrictTypes(), bucket)
 val frame = JFrame()
 val bankFrame = JFrame()
 
@@ -69,8 +67,7 @@ var bank = JTable()
 private fun createResourceFrame() {
 	
 	bank = createTable(
-		"Name", "Total Amount", "Income",
-		data = listOf("test", 5, 5)
+		"Name", "Total Amount", "Income"
 	)
 	
 	val scrollPane = createScrollTable(bank, alwaysMaxSize = true)
@@ -93,11 +90,11 @@ fun passTime(time: Int) {
 	
 	timePassed += time
 	
-	colony.constructionManager.tick(time)
+	colony.tick(time)
 	
 	if (timePassed / 30 > month) {
 		month = timePassed / 30
-		teller.collectResources()
+		bucket.processIncome()
 	}
 	
 	updateAllocation()
@@ -110,8 +107,8 @@ fun updateBank() {
 	val model = bank.model as DefaultTableModel
 	model.rowCount = 0
 	
-	teller.bank.forEach { (type, resourcePair) ->
-		model.addRow(arrayOf(type.id, resourcePair.first.amount, resourcePair.second.amount))
+	bucket.bucket.forEach { (type, resourcePair) ->
+		model.addRow(arrayOf(type.id, resourcePair.first, resourcePair.second))
 	}
 	
 	bankFrame.pack()
@@ -128,25 +125,25 @@ private fun initDistrictTypes() : Set<DistrictType> {
 		id = "d1",
 		time = 100,
 		starting = true,
-		cost = setOf(Resource(minerals, 100)),
-		production = setOf(Resource(energy, 4)),
-		upkeep = setOf(Resource(energy, 1))
+		cost = mapOf(minerals to 100),
+		production = mapOf(energy to 4),
+		upkeep = mapOf(energy to 1)
 	)
 	
 	val district2 = DistrictType(
 		id = "d2",
 		time = 100,
-		cost = setOf(Resource(minerals, 100)),
-		production = setOf(Resource(minerals, 4)),
-		upkeep = setOf(Resource(energy, 1))
+		cost = mapOf(minerals to 100),
+		production = mapOf(minerals to 4),
+		upkeep = mapOf(energy to 1)
 	)
 	
 	val district3 = DistrictType(
 		id = "d3",
 		time = 100,
-		cost = setOf(Resource(minerals, 100)),
-		production = setOf(Resource(food, 4)),
-		upkeep = setOf(Resource(energy, 1))
+		cost = mapOf(minerals to 100),
+		production = mapOf(food to 4),
+		upkeep = mapOf(energy to 1)
 	)
 	
 	val list = listOf(
